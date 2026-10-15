@@ -12,376 +12,349 @@
     body {
       font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: #f1f5f9;
+      -webkit-tap-highlight-color: transparent;
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-nav {
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .animate-fade-in {
-      animation: fadeIn 0.25s ease-out forwards;
+      animation: fadeIn 0.22s ease-out forwards;
     }
     @media print {
-      header, .no-print { display: none !important; }
+      header, .no-print, #mobileBottomNav { display: none !important; }
       body { background: #fff; padding: 0; }
     }
   </style>
 </head>
-<body class="text-slate-800 antialiased pb-24 selection:bg-teal-600 selection:text-white">
+<body class="text-slate-800 antialiased pb-28 md:pb-20 selection:bg-teal-600 selection:text-white">
 
-  <!-- 頂部導航列 Header -->
-  <header class="bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900 text-white shadow-xl sticky top-0 z-40 border-b border-teal-700/50">
-    <div class="max-w-5xl mx-auto px-4 py-3 sm:py-3.5">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <!-- 標題與進度小標 -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center text-2xl shadow-inner border border-white/15">
-              🚀
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight">베트남 越南旅遊旗艦手冊</h1>
-                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">PRO v2.0</span>
-              </div>
-              <p class="text-teal-200 text-xs mt-0.5 flex items-center gap-1.5">
-                <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="syncStatusText">雲端即時同步・店家備註・旅伴投票・司機指路卡</span>
-              </p>
-            </div>
+  <!-- 頂部導航列 Header (手機版極簡化，避免佔用過多垂直空間) -->
+  <header class="bg-gradient-to-r from-teal-900 via-teal-800 to-emerald-900 text-white shadow-lg sticky top-0 z-40 border-b border-teal-700/50">
+    <div class="max-w-5xl mx-auto px-3.5 py-2.5 sm:px-4 sm:py-3">
+      <div class="flex items-center justify-between gap-2">
+        <!-- 標題與同步狀態 -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center text-lg sm:text-2xl shadow-inner border border-white/15 shrink-0">
+            🚀
           </div>
-          <!-- 手機版快速工具開關 -->
-          <div class="flex items-center gap-1.5 md:hidden">
-            <button
-              onclick="toggleTaxiModal()"
-              class="px-2.5 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 text-xs font-semibold border border-amber-300/30 flex items-center gap-1"
-            >
-              <span>🚕</span>
-              <span>指路卡</span>
-            </button>
-            <button
-              onclick="toggleToolkitModal()"
-              class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold border border-white/20 flex items-center gap-1"
-            >
-              <span>📝</span>
-              <span>筆記</span>
-            </button>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-base sm:text-xl font-extrabold tracking-tight truncate">베트남 越南旅遊手冊</h1>
+              <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 shrink-0">Mobile</span>
+            </div>
+            <p class="text-teal-200 text-[11px] flex items-center gap-1 truncate">
+              <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+              <span id="syncStatusText" class="truncate">雲端同步・點擊底部工具列秒開換算与指路卡</span>
+            </p>
           </div>
         </div>
 
-        <!-- 搜尋與功能按鈕群 -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <!-- 搜尋框 -->
-          <div class="relative flex-1 sm:w-48">
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="搜尋景點、咖啡、街道..."
-              oninput="handleSearch(this.value)"
-              class="w-full pl-8 pr-7 py-1.5 text-xs sm:text-sm rounded-xl bg-white/10 text-white placeholder-teal-200/80 border border-white/20 focus:outline-none focus:bg-white focus:text-slate-900 focus:placeholder-slate-400 transition"
-            />
-            <svg class="w-4 h-4 absolute left-2.5 top-2 text-teal-200 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <button
-              id="clearSearchBtn"
-              onclick="clearSearch()"
-              class="hidden absolute right-2 top-2 text-xs text-teal-200 hover:text-white"
-              title="清除搜尋"
-            >✕</button>
-          </div>
-
-          <!-- 司機越南文指路卡 (桌機版) -->
+        <!-- 右側快捷分享按鈕 -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- 桌機版額外工具按鈕 -->
+          <button
+            onclick="toggleCurrencyModal()"
+            class="hidden md:flex px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-semibold text-xs border border-amber-300/30 transition items-center gap-1"
+          >
+            <span>💱</span>
+            <span>越盾換算</span>
+          </button>
           <button
             onclick="toggleTaxiModal()"
-            class="hidden md:flex px-3 py-1.5 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-semibold text-xs sm:text-sm border border-amber-300/30 transition items-center gap-1.5 shrink-0"
+            class="hidden md:flex px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs border border-white/20 transition items-center gap-1"
           >
             <span>🚕</span>
-            <span>Grab 司機指路卡</span>
+            <span>司機指路卡</span>
           </button>
-
-          <!-- 匯率與工具箱按鈕 (桌機版) -->
           <button
             onclick="toggleToolkitModal()"
-            class="hidden md:flex px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs sm:text-sm border border-white/20 transition items-center gap-1.5 shrink-0"
+            class="hidden md:flex px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs border border-white/20 transition items-center gap-1"
           >
             <span>📝</span>
-            <span>共用筆記＆行前清單</span>
+            <span>共用筆記</span>
           </button>
 
-          <!-- 分享連結按鈕 -->
+          <!-- 手機與桌機通用：分享連結 & 複製 LINE -->
           <button
             onclick="shareItineraryLink()"
-            class="px-3 py-1.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-semibold text-xs sm:text-sm shadow-sm transition flex items-center gap-1.5 shrink-0"
+            class="px-2.5 py-1.5 rounded-xl bg-teal-600 active:bg-teal-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1"
+            title="分享當前路線網址"
           >
             <span>🔗</span>
-            <span>分享當前路線</span>
+            <span class="hidden sm:inline">分享路線</span>
           </button>
-
-          <!-- 複製 LINE 行程文字 -->
           <button
             onclick="copyCurrentItinerary()"
-            class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs sm:text-sm shadow-sm transition flex items-center gap-1.5 shrink-0"
+            class="px-2.5 py-1.5 rounded-xl bg-amber-400 active:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-sm transition flex items-center gap-1"
           >
             <span>📋</span>
-            <span>複製 LINE 版</span>
+            <span>LINE版</span>
           </button>
         </div>
       </div>
 
-      <!-- 行程完成進度條 -->
-      <div class="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-          <span class="text-teal-200 font-medium shrink-0">行程完成度：</span>
-          <div class="w-full max-w-xs bg-teal-950/70 h-2 rounded-full overflow-hidden border border-white/10">
+      <!-- 進度條與搜尋列整合在同一緊湊排 -->
+      <div class="mt-2 pt-2 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-1.5 flex-1 min-w-0">
+          <span class="text-teal-200 text-[11px] font-medium shrink-0">完成度</span>
+          <div class="w-20 sm:w-40 bg-teal-950/70 h-2 rounded-full overflow-hidden border border-white/10 shrink-0">
             <div id="progressBar" class="bg-gradient-to-r from-emerald-400 to-amber-300 h-full transition-all duration-300" style="width: 0%"></div>
           </div>
-          <span id="progressText" class="font-mono font-bold text-amber-300 shrink-0">0/0 (0%)</span>
+          <span id="progressText" class="font-mono text-[11px] font-bold text-amber-300 shrink-0">0/0</span>
         </div>
-        <div class="flex items-center gap-2.5">
-          <span id="userIdBadge" class="hidden sm:inline-block font-mono text-[10px] text-teal-200/90 bg-teal-950/60 px-2 py-0.5 rounded border border-white/10">連線準備中...</span>
-          <button onclick="openOriginalSheet()" class="text-[11px] text-teal-200 hover:text-white underline underline-offset-2 shrink-0">
-            📄 開啟原始 Google 試算表
-          </button>
+
+        <!-- 輕量搜尋框 -->
+        <div class="relative w-40 sm:w-56">
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="🔍 搜景點、街道..."
+            oninput="handleSearch(this.value)"
+            class="w-full pl-2.5 pr-6 py-1 text-xs rounded-lg bg-white/15 text-white placeholder-teal-200/90 border border-white/20 focus:outline-none focus:bg-white focus:text-slate-900 focus:placeholder-slate-400 transition"
+          />
+          <button
+            id="clearSearchBtn"
+            onclick="clearSearch()"
+            class="hidden absolute right-1.5 top-1 text-xs text-teal-200 hover:text-white px-1"
+          >✕</button>
         </div>
+
+        <span id="userIdBadge" class="hidden lg:inline-block font-mono text-[10px] text-teal-200/90 bg-teal-950/60 px-2 py-0.5 rounded border border-white/10">連線準備中...</span>
       </div>
     </div>
   </header>
 
-  <!-- 複製成功提示 Toast -->
-  <div id="toast" class="fixed bottom-6 right-5 z-50 hidden bg-slate-900/95 backdrop-blur text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 text-sm flex items-center gap-2.5 transition-all">
-    <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">✔</span>
-    <span id="toastMsg">已複製！</span>
+  <!-- 複製成功提示 Toast (手機版置於底部導航列上方) -->
+  <div id="toast" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900/95 backdrop-blur text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700 text-xs sm:text-sm font-medium flex items-center gap-2 w-max max-w-[90vw] transition-all">
+    <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">✔</span>
+    <span id="toastMsg" class="truncate">已複製！</span>
   </div>
 
-  <main class="max-w-5xl mx-auto px-4 pt-5 space-y-5">
+  <main class="max-w-5xl mx-auto px-3 sm:px-4 pt-3.5 space-y-4">
 
-    <!-- Step 1. 三大路線切換 + 雙版本比較模式按鈕 -->
+    <!-- Step 1. 路線方案切換（手機上支援左右滑動或點選，減少垂直高度） -->
     <section>
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-        <div class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-          <span>📍 STEP 1. 選擇行程路線方案（自動記憶於分享網址）</span>
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+          <span>📍 切換行程路線</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button
-            onclick="toggleDecisionPanel()"
-            id="decisionToggleBtn"
-            class="text-xs font-bold px-3 py-1 rounded-full border border-amber-500 text-amber-900 bg-amber-50 hover:bg-amber-100 transition flex items-center gap-1"
-          >
-            <span>🗳️</span>
-            <span id="decisionToggleText">待決策問號＆入口指南</span>
-          </button>
+        <div class="flex items-center gap-1.5">
           <button
             onclick="toggleCompareMode()"
             id="compareModeBtn"
-            class="text-xs font-bold px-3 py-1 rounded-full border border-teal-600 text-teal-700 bg-teal-50 hover:bg-teal-100 transition flex items-center gap-1"
+            class="text-[11px] font-bold px-2.5 py-1 rounded-full border border-teal-600 text-teal-800 bg-teal-50 active:bg-teal-100 transition flex items-center gap-1"
           >
             <span>⚖️</span>
-            <span id="compareModeText">河內雙版本 PK 比較</span>
+            <span id="compareModeText">河內雙版本 PK</span>
+          </button>
+          <button
+            onclick="openOriginalSheet()"
+            class="text-[11px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 bg-white text-slate-600 active:bg-slate-100"
+          >
+            📄 原表
           </button>
         </div>
       </div>
-      <div id="routeTabs" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+      <!-- 手機版改為緊湊型橫向滑動或雙行按鈕，不佔滿整個首屏 -->
+      <div id="routeTabs" class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3"></div>
     </section>
 
-    <!-- 試算表「？待確認項目」旅伴投票＆實戰避雷指南區 -->
-    <section id="decisionSection" class="bg-gradient-to-br from-indigo-50/90 via-white to-amber-50/60 rounded-2xl border border-indigo-200/90 shadow-sm p-4 sm:p-5 animate-fade-in">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-3 mb-3.5">
-        <div>
-          <h2 class="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
-            <span>🗳️</span>
-            <span>試算表「？待決策項目」旅伴投票 ＆ 實戰避雷指南</span>
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">針對原始表格中有打「？」或標註「指南」的項目，直接點擊即可累計旅伴偏好票數（雲端即時同步）</p>
+    <!-- 試算表「？待決策項目」旅伴投票＆實戰避雷指南區 (手機版預設收合為精簡橫幅，點擊展開) -->
+    <section class="bg-gradient-to-br from-indigo-50/90 via-white to-amber-50/60 rounded-2xl border border-indigo-200/90 shadow-sm overflow-hidden">
+      <button
+        onclick="toggleDecisionPanel()"
+        class="w-full px-3.5 py-3 flex items-center justify-between text-left active:bg-indigo-50/60 transition"
+      >
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-base shrink-0">🗳️</span>
+          <div class="min-w-0">
+            <h2 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate">試算表「？待決策項目」投票 ＆ 實戰避雷指南</h2>
+            <p class="text-[11px] text-slate-500 truncate">椰子船vs奧黛・河內遠教堂・火車街新舊入口指南</p>
+          </div>
         </div>
-        <button onclick="toggleDecisionPanel()" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600">
-          收合 ▲
-        </button>
+        <span id="decisionCollapseText" class="text-xs font-bold text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-lg shrink-0 ml-2">展開 ▼</span>
+      </button>
+      <div id="decisionSection" class="hidden px-3.5 pb-3.5 pt-1 border-t border-indigo-100/80 animate-fade-in">
+        <div id="decisionCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2"></div>
       </div>
-      <div id="decisionCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
     </section>
 
     <!-- 河內雙版本 PK 比較視圖 (預設隱藏，點擊切換) -->
-    <section id="compareViewSection" class="hidden bg-white rounded-2xl border-2 border-teal-600/30 shadow-md p-4 sm:p-5 animate-fade-in">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+    <section id="compareViewSection" class="hidden bg-white rounded-2xl border-2 border-teal-600/30 shadow-md p-3.5 sm:p-5 animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
         <div>
-          <h2 class="font-extrabold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+          <h2 class="font-extrabold text-slate-900 text-sm sm:text-lg flex items-center gap-1.5">
             <span>⚖️</span>
-            <span>河內＋下龍灣 5天：長榮早班 vs. 華航午班 動線一覽比較</span>
+            <span>河內 5天：長榮早班 vs. 華航午班</span>
           </h2>
-          <p class="text-xs text-slate-500 mt-0.5">一眼看懂「下龍灣放後段（D4-D5）」與「下龍灣放前段（D2-D3）」的優缺點與行程差異</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">比較「下龍灣放 D4-D5」與「下龍灣放 D2-D3」動線差異</p>
         </div>
-        <button onclick="toggleCompareMode()" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700">
-          關閉比較 ✕
+        <button onclick="toggleCompareMode()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 active:bg-slate-200 text-slate-700 shrink-0">
+          關閉 ✕
         </button>
       </div>
-      <div id="compareTableBody" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <div id="compareTableBody" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
     </section>
 
     <!-- 航班、預算與實用工具快覽列 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
       <!-- 左側 2/3：航班與票價比較卡 -->
       <section id="flightSection" class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden"></section>
 
-      <!-- 右側 1/3：隨身越南盾換算器＆行前重點卡 -->
-      <section class="bg-gradient-to-br from-amber-50 via-orange-50/60 to-white rounded-2xl border border-amber-200/80 p-4 shadow-sm flex flex-col justify-between">
+      <!-- 右側 1/3：隨身越南盾換算器（桌機常駐，手機也可從底部導航隨時呼叫彈出視窗） -->
+      <section class="bg-gradient-to-br from-amber-50 via-orange-50/60 to-white rounded-2xl border border-amber-200/90 p-3.5 sm:p-4 shadow-sm flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-extrabold text-amber-950 text-xs sm:text-sm flex items-center gap-1.5">
               <span>💱</span>
               <span>越南盾 (VND) 完整金額換算</span>
             </h3>
-            <span class="text-[11px] font-semibold bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-full">1 TWD ≈ 780 VND</span>
+            <span class="text-[11px] font-bold bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded-full">1 TWD ≈ 780 VND</span>
           </div>
-          <p class="text-[11px] text-slate-600 mb-2">看到標價多少就輸入多少（完整輸入，不用去 0）：</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
+          <p class="text-[11px] text-slate-600 mb-2">看到標價多少就輸入多少（自動叫出手機數字鍵盤）：</p>
+          <div class="grid grid-cols-2 gap-2 items-center">
             <div class="relative">
               <input
                 id="vndInput"
                 type="number"
+                inputmode="numeric"
+                pattern="[0-9]*"
                 step="1000"
-                placeholder="輸入完整越盾 (如 100000)"
+                placeholder="輸入越盾"
                 value="100000"
-                oninput="convertCurrency('vnd')"
-                class="w-full pl-3 pr-12 py-2 rounded-xl border border-amber-300 bg-white text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                oninput="convertCurrency('vnd', 'main')"
+                class="w-full pl-3 pr-11 py-2.5 rounded-xl border border-amber-300 bg-white text-slate-900 font-extrabold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
-              <span class="absolute right-2.5 top-2.5 text-[11px] font-bold text-amber-700">VND</span>
+              <span class="absolute right-2.5 top-3 text-[10px] font-extrabold text-amber-700">VND</span>
             </div>
             <div class="relative">
               <input
                 id="twdInput"
                 type="number"
-                placeholder="約合台幣"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                placeholder="約台幣"
                 value="128"
-                oninput="convertCurrency('twd')"
-                class="w-full pl-3 pr-12 py-2 rounded-xl border border-teal-300 bg-teal-50/50 text-teal-950 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                oninput="convertCurrency('twd', 'main')"
+                class="w-full pl-3 pr-11 py-2.5 rounded-xl border border-teal-300 bg-teal-50/60 text-teal-950 font-extrabold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
-              <span class="absolute right-2.5 top-2.5 text-[11px] font-bold text-teal-700">TWD</span>
+              <span class="absolute right-2.5 top-3 text-[10px] font-extrabold text-teal-700">TWD</span>
             </div>
           </div>
           <!-- 讀數防呆輔助顯示 -->
-          <div id="vndReadableHint" class="mt-1.5 text-[11px] font-semibold text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-lg flex items-center justify-between">
-            <span>👁️ 金額確認：<b>100,000 VND</b>（10 萬越盾）</span>
-            <button onclick="appendZeros('000')" class="text-[10px] bg-white hover:bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded border border-amber-300 transition" title="快速補 3 個 0">+000</button>
+          <div id="vndReadableHint" class="mt-2 text-xs font-semibold text-amber-900 bg-amber-100/80 px-3 py-1.5 rounded-xl flex items-center justify-between gap-2">
+            <span>👁️ <b>100,000 VND</b>（10 萬越盾）</span>
+            <button onclick="appendZeros('000', 'main')" class="text-xs bg-white active:bg-amber-200 text-amber-950 font-extrabold px-2.5 py-1 rounded-lg border border-amber-300 shadow-sm shrink-0">+000 補零</button>
           </div>
-          <!-- 常用完整金額快按 -->
-          <div class="flex flex-wrap gap-1.5 mt-2.5">
-            <button onclick="setQuickVnd(50000)" class="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-200 text-amber-900 hover:bg-amber-100">50,000 (5萬咖啡)</button>
-            <button onclick="setQuickVnd(150000)" class="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-200 text-amber-900 hover:bg-amber-100">150,000 (15萬正餐)</button>
-            <button onclick="setQuickVnd(350000)" class="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-200 text-amber-900 hover:bg-amber-100">350,000 (35萬按摩)</button>
-            <button onclick="setQuickVnd(500000)" class="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-200 text-amber-900 hover:bg-amber-100">500,000 (50萬服飾)</button>
+          <!-- 常用完整金額快按 (加大手機點擊區域) -->
+          <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5 mt-2">
+            <button onclick="setQuickVnd(50000)" class="text-xs py-1.5 px-2.5 rounded-xl bg-white border border-amber-200 text-amber-950 font-semibold active:bg-amber-100">50,000 (5萬咖啡)</button>
+            <button onclick="setQuickVnd(150000)" class="text-xs py-1.5 px-2.5 rounded-xl bg-white border border-amber-200 text-amber-950 font-semibold active:bg-amber-100">150,000 (15萬餐)</button>
+            <button onclick="setQuickVnd(350000)" class="text-xs py-1.5 px-2.5 rounded-xl bg-white border border-amber-200 text-amber-950 font-semibold active:bg-amber-100">350,000 (35萬按摩)</button>
+            <button onclick="setQuickVnd(500000)" class="text-xs py-1.5 px-2.5 rounded-xl bg-white border border-amber-200 text-amber-950 font-semibold active:bg-amber-100">500,000 (50萬服飾)</button>
           </div>
-        </div>
-
-        <div class="mt-3 pt-2.5 border-t border-amber-200/60 flex items-center justify-between text-xs text-amber-900">
-          <span>💡 直接照店家標價輸入即可</span>
-          <button onclick="toggleTaxiModal()" class="font-bold text-teal-700 hover:underline">🚕 司機越南文卡</button>
         </div>
       </section>
     </div>
 
-    <!-- 河內專屬逛街地圖速查卡 (僅河內線顯示) -->
-    <section id="shoppingGuideSection" class="hidden bg-gradient-to-r from-rose-50 via-pink-50/70 to-amber-50 rounded-2xl border border-rose-200/80 p-4 shadow-sm animate-fade-in">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h3 class="font-extrabold text-rose-950 text-sm sm:text-base flex items-center gap-1.5">
+    <!-- 河內專屬逛街地圖速查卡 (僅河內線顯示，手機支援橫向滑動卡片或雙欄) -->
+    <section id="shoppingGuideSection" class="hidden bg-gradient-to-r from-rose-50 via-pink-50/70 to-amber-50 rounded-2xl border border-rose-200/80 p-3.5 shadow-sm animate-fade-in">
+      <div class="flex items-center justify-between gap-2 mb-2.5">
+        <h3 class="font-extrabold text-rose-950 text-xs sm:text-sm flex items-center gap-1.5">
           <span>🛍️</span>
-          <span>河內三大逛街戰區地圖＆火車街時刻速查（點擊直接開 Google 地圖）</span>
+          <span>河內逛街戰區地圖＆火車街時刻（點卡直接導航）</span>
         </h3>
-        <span class="text-xs bg-rose-200/80 text-rose-900 px-2.5 py-0.5 rounded-full font-bold">河內線必存</span>
+        <span class="text-[10px] bg-rose-200/80 text-rose-900 px-2 py-0.5 rounded-full font-bold shrink-0">必存</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs sm:text-sm">
-        <a href="https://www.google.com/maps/search/?api=1&query=Dang+Van+Ngu+Hanoi" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-rose-100 hover:border-rose-300 shadow-sm transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-pink-700 group-hover:underline">👚 Đặng Văn Ngữ 街</span>
-              <span class="text-[11px] text-rose-500 font-semibold">🗺️ 導航 ↗</span>
-            </div>
-            <div class="text-slate-600 text-xs mt-1">📍 <b>地圖左下區（棟多郡）</b>｜主打便宜、可愛風格的年輕服飾小店群</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+        <a href="https://www.google.com/maps/search/?api=1&query=Dang+Van+Ngu+Hanoi" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-rose-50 rounded-xl p-3 border border-rose-100 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-pink-700 text-xs sm:text-sm">👚 Đặng Văn Ngữ 街</span>
+            <span class="text-[11px] bg-pink-50 text-pink-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
+          <div class="text-slate-600 text-xs mt-1">📍 <b>地圖左下區</b>｜便宜、可愛風格年輕服飾</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Ba+Trieu+Street+Hanoi" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-rose-100 hover:border-rose-300 shadow-sm transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-rose-700 group-hover:underline">👗 Bà Triệu 街</span>
-              <span class="text-[11px] text-rose-500 font-semibold">🗺️ 導航 ↗</span>
-            </div>
-            <div class="text-slate-600 text-xs mt-1">📍 <b>地圖右下區（還劍湖往南）</b>｜主打女性優雅、正式感、質感剪裁服飾</div>
+        <a href="https://www.google.com/maps/search/?api=1&query=Ba+Trieu+Street+Hanoi" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-rose-50 rounded-xl p-3 border border-rose-100 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-rose-700 text-xs sm:text-sm">👗 Bà Triệu 街</span>
+            <span class="text-[11px] bg-rose-50 text-rose-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
+          <div class="text-slate-600 text-xs mt-1">📍 <b>地圖右下區</b>｜女性優雅、正式感質感服飾</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Dong+Cac+Street+Hanoi" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-rose-100 hover:border-rose-300 shadow-sm transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-indigo-700 group-hover:underline">👔 Đông Các 街</span>
-              <span class="text-[11px] text-indigo-500 font-semibold">🗺️ 導航 ↗</span>
-            </div>
-            <div class="text-slate-600 text-xs mt-1">📍 <b>地圖左側區</b>｜男裝店較集中，距離左下區車程僅約 5-8 分鐘可連逛</div>
+        <a href="https://www.google.com/maps/search/?api=1&query=Dong+Cac+Street+Hanoi" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-indigo-50 rounded-xl p-3 border border-rose-100 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-indigo-700 text-xs sm:text-sm">👔 Đông Các 街</span>
+            <span class="text-[11px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
+          <div class="text-slate-600 text-xs mt-1">📍 <b>地圖左側區</b>｜男裝店集中，離左下區車程5分</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Hanoi+Train+Street" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-amber-200 hover:border-amber-400 shadow-sm transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-amber-800 group-hover:underline">🚂 河內火車街時刻</span>
-              <span class="text-[11px] text-amber-600 font-semibold">🗺️ 導航 ↗</span>
-            </div>
-            <div class="text-slate-600 text-xs mt-1">⏰ 鎖定 <span class="font-bold text-amber-700">08:45 / 09:15</span> 早班火車時段喝咖啡（詳見上方新舊入口指南）</div>
+        <a href="https://www.google.com/maps/search/?api=1&query=Hanoi+Train+Street" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-amber-50 rounded-xl p-3 border border-amber-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-amber-800 text-xs sm:text-sm">🚂 河內火車街時刻</span>
+            <span class="text-[11px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
+          <div class="text-slate-600 text-xs mt-1">⏰ 鎖定 <b class="text-amber-700">08:45 / 09:15</b> 早班火車喝咖啡</div>
         </a>
       </div>
     </section>
 
     <!-- 胡志明＋峴港重點速查卡 (僅胡志明峴港線顯示) -->
-    <section id="hcmGuideSection" class="bg-gradient-to-r from-teal-50 via-emerald-50/70 to-sky-50 rounded-2xl border border-teal-200/80 p-4 shadow-sm animate-fade-in">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <h3 class="font-extrabold text-teal-950 text-sm sm:text-base flex items-center gap-1.5">
+    <section id="hcmGuideSection" class="bg-gradient-to-r from-teal-50 via-emerald-50/70 to-sky-50 rounded-2xl border border-teal-200/80 p-3.5 shadow-sm animate-fade-in">
+      <div class="flex items-center justify-between gap-2 mb-2.5">
+        <h3 class="font-extrabold text-teal-950 text-xs sm:text-sm flex items-center gap-1.5">
           <span>🌴</span>
-          <span>胡志明＆峴港重點地標開放時間與叫車備忘（點擊直接開 Google 地圖）</span>
+          <span>胡志明＆峴港重點地標速查（點卡直接開 Google 地圖）</span>
         </h3>
-        <span class="text-xs bg-teal-200/80 text-teal-900 px-2.5 py-0.5 rounded-full font-bold">南中越必存</span>
+        <span class="text-[10px] bg-teal-200/80 text-teal-900 px-2 py-0.5 rounded-full font-bold shrink-0">必存</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs sm:text-sm">
-        <a href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-teal-100 hover:border-teal-300 shadow-sm transition">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+        <a href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-teal-50 rounded-xl p-3 border border-teal-100 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-pink-700 group-hover:underline">⛪ 胡志明粉紅教堂</span>
-            <span class="text-[11px] text-teal-600 font-semibold">🗺️ 導航 ↗</span>
+            <span class="font-extrabold text-pink-700 text-xs sm:text-sm">⛪ 胡志明粉紅教堂</span>
+            <span class="text-[11px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
-          <div class="text-slate-600 text-xs mt-1">D2 早上順遊：粉紅教堂 ➔ 百年中央郵局 ➔ 檳城市場</div>
+          <div class="text-slate-600 text-xs mt-1">D2 順遊：粉紅教堂 ➔ 中央郵局 ➔ 檳城市場</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Da+Nang+Cathedral" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-teal-100 hover:border-teal-300 shadow-sm transition">
+        <a href="https://www.google.com/maps/search/?api=1&query=Da+Nang+Cathedral" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-teal-50 rounded-xl p-3 border border-teal-100 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-700 group-hover:underline">🏰 峴港粉紅大教堂</span>
-            <span class="text-[11px] text-teal-600 font-semibold">🗺️ 導航 ↗</span>
+            <span class="font-extrabold text-rose-700 text-xs sm:text-sm">🏰 峴港粉紅大教堂</span>
+            <span class="text-[11px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
-          <div class="text-slate-600 text-xs mt-1">⏰ 週一～六 <b>08:00-11:30、13:30-16:30</b>（預計停留 30 分鐘）</div>
+          <div class="text-slate-600 text-xs mt-1">⏰ 一～六 <b>08:00-11:30、13:30-16:30</b>（留30分）</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Han+Market+Da+Nang" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-teal-100 hover:border-teal-300 shadow-sm transition">
+        <a href="https://www.google.com/maps/search/?api=1&query=Han+Market+Da+Nang" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-teal-50 rounded-xl p-3 border border-teal-100 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-amber-800 group-hover:underline">🧺 峴港韓市場 Han Market</span>
-            <span class="text-[11px] text-teal-600 font-semibold">🗺️ 導航 ↗</span>
+            <span class="font-extrabold text-amber-800 text-xs sm:text-sm">🧺 峴港韓市場</span>
+            <span class="text-[11px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
-          <div class="text-slate-600 text-xs mt-1">⏰ <b>06:00-19:00</b>（預計停留 1.5 小時，買果乾腰果、藤編包）</div>
+          <div class="text-slate-600 text-xs mt-1">⏰ <b>06:00-19:00</b>（留1.5hr 買果乾腰果藤編包）</div>
         </a>
-        <a href="https://www.google.com/maps/search/?api=1&query=Hoi+An+Ancient+Town" target="_blank" rel="noopener noreferrer" class="group bg-white/95 hover:bg-white rounded-xl p-3 border border-teal-100 hover:border-teal-300 shadow-sm transition">
+        <a href="https://www.google.com/maps/search/?api=1&query=Hoi+An+Ancient+Town" target="_blank" rel="noopener noreferrer" class="bg-white active:bg-teal-50 rounded-xl p-3 border border-teal-100 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-sky-800 group-hover:underline">🏮 會安古鎮＆巴拿山</span>
-            <span class="text-[11px] text-teal-600 font-semibold">🗺️ 導航 ↗</span>
+            <span class="font-extrabold text-sky-800 text-xs sm:text-sm">🏮 會安古鎮＆巴拿山</span>
+            <span class="text-[11px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md font-bold">🗺️ 導航 ↗</span>
           </div>
-          <div class="text-slate-600 text-xs mt-1">🚗 皆建議預約<b>純接送專車</b>；D3 飛國內線需提早 2 小時到機場</div>
+          <div class="text-slate-600 text-xs mt-1">🚗 皆預約<b>純接送專車</b>；D3國內線提早2hr到機場</div>
         </a>
       </div>
     </section>
 
-    <!-- 天數與類別雙層篩選器 -->
-    <section class="glass-nav rounded-2xl border border-slate-200/90 p-3.5 shadow-sm space-y-2.5 sticky top-[116px] sm:top-[104px] z-30">
-      <div class="flex items-center justify-between gap-2">
-        <!-- 天數切換 -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span class="text-xs font-bold text-slate-400 shrink-0 mr-1">📅 天數：</span>
+    <!-- 天數與類別雙層篩選器（緊湊化 Sticky 高度，不遮擋手機閱讀視野） -->
+    <section id="stickyFilterBar" class="glass-nav rounded-2xl border border-slate-200/90 p-2.5 sm:p-3 shadow-sm space-y-2 sticky top-[82px] sm:top-[88px] z-30">
+      <div class="flex items-center justify-between gap-1.5">
+        <!-- 天數切換（可左右滑動，大拇指好按） -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           <div id="dayFilters" class="flex items-center gap-1.5"></div>
         </div>
 
@@ -389,82 +362,162 @@
         <button
           onclick="toggleHideCompleted()"
           id="hideCompletedBtn"
-          class="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 shrink-0 transition"
+          class="text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-slate-200 text-slate-600 active:bg-slate-100 shrink-0 transition"
         >
-          👁️ 顯示全部
+          👁️ 全部
         </button>
       </div>
 
       <!-- 類別切換 -->
-      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
-        <span class="text-xs font-bold text-slate-400 shrink-0 mr-1">🏷️ 類別：</span>
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1.5 border-t border-slate-100">
         <div id="catFilters" class="flex items-center gap-1.5"></div>
       </div>
     </section>
 
     <!-- 每日行程卡片時間軸 -->
-    <section id="itineraryList" class="space-y-5"></section>
+    <section id="itineraryList" class="space-y-4"></section>
 
   </main>
 
-  <!-- 單一行程自訂店名/預約備註 Modal -->
-  <div id="customNoteModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in">
-      <div class="bg-gradient-to-r from-teal-800 to-emerald-800 text-white px-5 py-3.5 flex items-center justify-between">
+  <!-- 📱 手機版專屬：底部固定大拇指導航列 (Bottom App Bar) -->
+  <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_rgba(15,23,42,0.08)] pb-safe">
+    <div class="grid grid-cols-5 h-14">
+      <button onclick="scrollToItinerary()" class="flex flex-col items-center justify-center gap-0.5 text-teal-800 active:bg-slate-100">
+        <span class="text-base leading-none">📅</span>
+        <span class="text-[10px] font-extrabold">看行程</span>
+      </button>
+      <button onclick="toggleCurrencyModal()" class="flex flex-col items-center justify-center gap-0.5 text-amber-800 active:bg-amber-50">
+        <span class="text-base leading-none">💱</span>
+        <span class="text-[10px] font-extrabold">越盾換算</span>
+      </button>
+      <button onclick="toggleTaxiModal()" class="flex flex-col items-center justify-center gap-0.5 text-slate-700 active:bg-slate-100">
+        <span class="text-base leading-none">🚕</span>
+        <span class="text-[10px] font-extrabold">司機指路</span>
+      </button>
+      <button onclick="openDecisionFromNav()" class="flex flex-col items-center justify-center gap-0.5 text-indigo-700 active:bg-indigo-50">
+        <span class="text-base leading-none">🗳️</span>
+        <span class="text-[10px] font-extrabold">待決策</span>
+      </button>
+      <button onclick="toggleToolkitModal()" class="flex flex-col items-center justify-center gap-0.5 text-slate-700 active:bg-slate-100">
+        <span class="text-base leading-none">📝</span>
+        <span class="text-[10px] font-extrabold">共用筆記</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 隨身越盾換算器 Bottom Sheet Modal (手機隨時秒開算錢) -->
+  <div id="currencyModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in pb-safe">
+      <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 px-5 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span>✏️</span>
-          <h3 id="customNoteModalTitle" class="font-bold text-sm sm:text-base">填寫店名或預約備註</h3>
+          <span class="text-xl">💱</span>
+          <div>
+            <h3 class="font-extrabold text-sm sm:text-base">隨身越南盾 (VND) 秒算器</h3>
+            <p class="text-[11px] font-semibold text-amber-950/80">1 TWD ≈ 780 VND｜照店家標價完整輸入</p>
+          </div>
         </div>
-        <button onclick="closeCustomNoteModal()" class="w-7 h-7 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-xs">✕</button>
+        <button onclick="toggleCurrencyModal()" class="w-8 h-8 rounded-full bg-black/10 active:bg-black/20 flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+      <div class="p-5 space-y-3.5">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="relative">
+            <label class="block text-[11px] font-bold text-amber-900 mb-1">越南盾標價 (VND)</label>
+            <input
+              id="modalVndInput"
+              type="number"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              step="1000"
+              value="100000"
+              oninput="convertCurrency('vnd', 'modal')"
+              class="w-full px-3 py-3 rounded-xl border-2 border-amber-400 bg-amber-50/30 text-slate-900 font-extrabold text-base focus:outline-none"
+            />
+          </div>
+          <div class="relative">
+            <label class="block text-[11px] font-bold text-teal-900 mb-1">折合台幣 (TWD)</label>
+            <input
+              id="modalTwdInput"
+              type="number"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              value="128"
+              oninput="convertCurrency('twd', 'modal')"
+              class="w-full px-3 py-3 rounded-xl border-2 border-teal-500 bg-teal-50/40 text-teal-950 font-extrabold text-base focus:outline-none"
+            />
+          </div>
+        </div>
+        <div id="modalVndReadableHint" class="text-xs font-semibold text-amber-950 bg-amber-100/90 px-3.5 py-2 rounded-xl flex items-center justify-between">
+          <span>👁️ <b>100,000 VND</b>（10 萬越盾）</span>
+          <button onclick="appendZeros('000', 'modal')" class="text-xs bg-white active:bg-amber-200 text-amber-950 font-extrabold px-3 py-1 rounded-lg border border-amber-300 shadow-sm">+000 補零</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="setQuickVnd(50000)" class="py-2 px-3 rounded-xl bg-slate-100 active:bg-amber-100 text-slate-800 font-bold text-xs">50,000 (5萬咖啡)</button>
+          <button onclick="setQuickVnd(150000)" class="py-2 px-3 rounded-xl bg-slate-100 active:bg-amber-100 text-slate-800 font-bold text-xs">150,000 (15萬正餐)</button>
+          <button onclick="setQuickVnd(350000)" class="py-2 px-3 rounded-xl bg-slate-100 active:bg-amber-100 text-slate-800 font-bold text-xs">350,000 (35萬按摩)</button>
+          <button onclick="setQuickVnd(500000)" class="py-2 px-3 rounded-xl bg-slate-100 active:bg-amber-100 text-slate-800 font-bold text-xs">500,000 (50萬服飾)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 單一行程自訂店名/預約備註 Modal -->
+  <div id="customNoteModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in pb-safe">
+      <div class="bg-gradient-to-r from-teal-800 to-emerald-800 text-white px-5 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <span>✏️</span>
+          <h3 id="customNoteModalTitle" class="font-bold text-sm sm:text-base truncate">填寫店名或預約備註</h3>
+        </div>
+        <button onclick="closeCustomNoteModal()" class="w-8 h-8 rounded-full bg-white/15 active:bg-white/25 flex items-center justify-center text-xs shrink-0">✕</button>
       </div>
       <div class="p-5 space-y-3">
-        <p class="text-xs text-slate-500">可填入最終決定的餐廳、咖啡廳、按摩店名或預約時間（儲存後旅伴打開網頁就會看到）：</p>
+        <p class="text-xs text-slate-500">可填入最終決定的餐廳、咖啡廳、按摩店名或預約時間（儲存後旅伴打開手機就會看到）：</p>
         <input
           id="customNoteInput"
           type="text"
-          placeholder="例如：已訂 Pizza 4P's 19:00 / 預約 Miu Miu Spa..."
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          placeholder="例如：已訂 Pizza 4P's 19:00 / Miu Miu Spa..."
+          class="w-full px-3.5 py-3 rounded-xl border border-slate-300 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
         <div class="flex justify-end gap-2 pt-2">
-          <button onclick="clearSingleCustomNote()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100">清除備註</button>
-          <button onclick="saveSingleCustomNote()" class="px-4 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold shadow-sm">💾 儲存同步</button>
+          <button onclick="clearSingleCustomNote()" class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold active:bg-slate-100">清除備註</button>
+          <button onclick="saveSingleCustomNote()" class="px-5 py-2.5 rounded-xl bg-teal-700 active:bg-teal-600 text-white text-xs font-bold shadow-sm">💾 儲存同步</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Grab 司機越南文指路大字卡 Modal -->
-  <div id="taxiModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in">
+  <div id="taxiModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in pb-safe">
       <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="text-xl">🚕</span>
           <div>
             <h3 class="font-extrabold text-base">Grab 叫車＆司機越南文指路卡</h3>
-            <p class="text-[11px] font-medium text-amber-950/80">複製越南文搜 Grab 更準，或直接拿畫面給司機看</p>
+            <p class="text-[11px] font-medium text-amber-950/80">複製越南文貼上 Grab，或直接把手機畫面給司機看</p>
           </div>
         </div>
-        <button onclick="toggleTaxiModal()" class="w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-sm font-bold">✕</button>
+        <button onclick="toggleTaxiModal()" class="w-8 h-8 rounded-full bg-black/10 active:bg-black/20 flex items-center justify-center text-sm font-bold">✕</button>
       </div>
-      <div id="taxiCardsList" class="p-4 space-y-2.5 max-h-[75vh] overflow-y-auto"></div>
+      <div id="taxiCardsList" class="p-4 space-y-2.5 max-h-[72vh] overflow-y-auto"></div>
     </div>
   </div>
 
   <!-- 旅伴共用筆記本與行前準備清單 Modal -->
-  <div id="toolkitModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in">
+  <div id="toolkitModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-fade-in pb-safe">
       <div class="bg-gradient-to-r from-teal-800 to-emerald-800 text-white px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="text-xl">📝</span>
           <div>
             <h3 class="font-bold text-base">旅伴共用筆記本＆行前檢核清單</h3>
-            <p class="text-[11px] text-teal-200">可隨時貼上想去的咖啡廳、按摩店預約資訊，雲端同步給旅伴</p>
+            <p class="text-[11px] text-teal-200">隨時貼上咖啡廳、按摩店預約資訊，雲端同步給旅伴</p>
           </div>
         </div>
-        <button onclick="toggleToolkitModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-sm">✕</button>
+        <button onclick="toggleToolkitModal()" class="w-8 h-8 rounded-full bg-white/15 active:bg-white/25 flex items-center justify-center text-sm">✕</button>
       </div>
 
-      <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+      <div class="p-4 sm:p-5 space-y-4 max-h-[75vh] overflow-y-auto">
         <!-- 新增共用筆記 -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1.5">📌 旅伴共用備忘錄（自動雲端同步）</label>
@@ -472,12 +525,12 @@
             id="sharedMemoInput"
             rows="4"
             placeholder="例如：&#10;• D1 按摩已預約 17:45 Miu Miu Spa&#10;• 必買伴手禮：帶皮腰果、椰子咖啡、Marou 巧克力、藤編包..."
-            class="w-full p-3 rounded-xl border border-slate-300 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            class="w-full p-3 rounded-xl border border-slate-300 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
           ></textarea>
           <div class="flex justify-end mt-2">
             <button
               onclick="saveSharedMemo()"
-              class="px-4 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold shadow-sm transition"
+              class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-teal-700 active:bg-teal-600 text-white text-xs font-bold shadow-sm transition"
             >
               💾 儲存共用備忘錄
             </button>
@@ -838,8 +891,8 @@
       votes: {},
       prepChecked: {},
       sharedMemo: "",
-      flightOpen: true,
-      decisionOpen: true,
+      flightOpen: false, // 手機優先：預設收合航班明細，讓畫面更聚焦每日行程
+      decisionOpen: false, // 手機優先：預設收合投票區，點擊隨時展開
       compareOpen: false,
       hideCompleted: false,
       editingEventId: null
@@ -963,26 +1016,26 @@
       document.getElementById("progressBar").style.width = `${pct}%`;
       document.getElementById("progressText").textContent = `${doneEvents}/${totalEvents} (${pct}%)`;
 
-      // 1. 渲染三大路線切換分頁
+      // 1. 渲染三大路線切換分頁（手機上緊湊好按）
       document.getElementById("routeTabs").innerHTML = Object.entries(DATA).map(([key, val]) => {
         const isActive = state.route === key;
         return `
           <button
             onclick="setRoute('${key}')"
-            class="text-left p-4 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+            class="text-left p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col justify-between ${
               isActive
-                ? "border-teal-600 bg-white shadow-md ring-4 ring-teal-500/15"
-                : "border-slate-200/90 bg-white/80 hover:bg-white hover:border-teal-300"
+                ? "border-teal-600 bg-white shadow-md ring-2 ring-teal-500/15"
+                : "border-slate-200/90 bg-white/80 active:bg-white"
             }"
           >
             <div>
-              <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center justify-between gap-2">
                 <span class="font-extrabold text-sm sm:text-base text-slate-900">${val.name}</span>
-                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                   isActive ? "bg-teal-700 text-white" : "bg-slate-100 text-slate-600"
                 }">${val.badge}</span>
               </div>
-              <p class="text-xs text-slate-500 leading-relaxed">${val.sub}</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-1 line-clamp-1 sm:line-clamp-none">${val.sub}</p>
             </div>
           </button>
         `;
@@ -991,6 +1044,10 @@
       // 1.5 渲染「？待決策項目＆避雷指南」
       const decisionList = state.route === "hcm_dad" ? DECISION_ITEMS.hcm_dad : DECISION_ITEMS.hanoi;
       const decisionSectionEl = document.getElementById("decisionSection");
+      const decisionCollapseText = document.getElementById("decisionCollapseText");
+      if (decisionCollapseText) {
+        decisionCollapseText.textContent = state.decisionOpen ? "收合 ▲" : "展開 ▼";
+      }
       if (state.decisionOpen) {
         decisionSectionEl.classList.remove("hidden");
         document.getElementById("decisionCardsContainer").innerHTML = decisionList.map(item => `
@@ -1007,10 +1064,10 @@
                 return `
                   <button
                     onclick="castVote('${voteKey}')"
-                    class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${
+                    class="px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
                       count > 0
                         ? "bg-teal-700 text-white border-teal-700 shadow-sm"
-                        : "bg-slate-50 hover:bg-teal-50 text-slate-700 border-slate-200"
+                        : "bg-slate-50 active:bg-teal-50 text-slate-700 border-slate-200"
                     }"
                   >
                     <span>${opt.label}</span>
@@ -1036,30 +1093,36 @@
         hcmGuide.classList.remove("hidden");
       }
 
-      // 3. 渲染航班與票價摘要
+      // 3. 渲染航班與票價摘要 (預設可收合，附帶首筆航班快覽)
+      const primaryFlight = routeData.flights[0];
       document.getElementById("flightSection").innerHTML = `
         <button
           onclick="toggleFlight()"
-          class="w-full px-4 py-3 bg-slate-50/90 hover:bg-slate-100/80 flex items-center justify-between text-left border-b border-slate-100 transition"
+          class="w-full px-3.5 py-3 bg-slate-50/90 active:bg-slate-100 flex items-center justify-between text-left border-b border-slate-100 transition"
         >
-          <div class="flex items-center gap-2">
-            <span class="text-lg">✈️</span>
-            <span class="font-extrabold text-sm sm:text-base text-slate-800">航班時段與票價比一比</span>
-            <span class="text-xs text-teal-800 bg-teal-100/80 px-2 py-0.5 rounded-full font-bold">${routeData.flights.length} 組資訊</span>
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-base shrink-0">✈️</span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-extrabold text-xs sm:text-sm text-slate-800">航班時段與票價比一比</span>
+                <span class="text-[11px] text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full font-extrabold">${primaryFlight.price}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 truncate mt-0.5">${primaryFlight.airline}：${primaryFlight.out}</p>
+            </div>
           </div>
-          <span class="text-xs text-slate-500 font-semibold">${state.flightOpen ? "收合 ▲" : "展開 ▼"}</span>
+          <span class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold shrink-0 ml-2">${state.flightOpen ? "收合 ▲" : "展開 ▼"}</span>
         </button>
         ${state.flightOpen ? `
-          <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 animate-fade-in">
             ${routeData.flights.map(f => `
-              <div class="rounded-xl border ${f.highlight ? 'border-teal-200 bg-teal-50/30' : 'border-slate-200/80 bg-slate-50/40'} p-3 flex flex-col justify-between gap-1.5">
+              <div class="rounded-xl border ${f.highlight ? 'border-teal-200 bg-teal-50/30' : 'border-slate-200/80 bg-slate-50/40'} p-3 flex flex-col justify-between gap-1">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="font-bold text-sm text-slate-900">${f.airline}</span>
+                  <span class="font-bold text-xs sm:text-sm text-slate-900">${f.airline}</span>
                   <span class="text-xs font-extrabold px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 shrink-0">${f.price}</span>
                 </div>
                 <div class="text-xs text-slate-600 space-y-0.5 mt-0.5">
-                  <div>🛫 去程 / 說明：<span class="font-semibold text-slate-800">${f.out}</span></div>
-                  <div>🛬 回程 / 備註：<span class="font-semibold text-slate-800">${f.back}</span></div>
+                  <div>🛫 去程：<span class="font-semibold text-slate-800">${f.out}</span></div>
+                  <div>🛬 回程：<span class="font-semibold text-slate-800">${f.back}</span></div>
                 </div>
               </div>
             `).join("")}
@@ -1067,17 +1130,17 @@
         ` : ""}
       `;
 
-      // 4. 渲染天數篩選器
+      // 4. 渲染天數篩選器 (加大觸控目標)
       const dayList = ["ALL", ...routeData.days.map(d => d.day)];
       document.getElementById("dayFilters").innerHTML = dayList.map(d => {
         const isActive = state.day === d;
         return `
           <button
             onclick="setDay('${d}')"
-            class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold border transition shrink-0 ${
+            class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold border transition shrink-0 ${
               isActive
                 ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                : "bg-white text-slate-600 border-slate-200 active:bg-slate-100"
             }"
           >
             ${d === "ALL" ? "全部天數" : d}
@@ -1087,11 +1150,11 @@
 
       // 更新「隱藏已完成」按鈕狀態
       const hideBtn = document.getElementById("hideCompletedBtn");
-      hideBtn.textContent = state.hideCompleted ? "🙈 已隱藏完成項" : "👁️ 顯示全部";
-      hideBtn.className = `text-xs font-bold px-2.5 py-1 rounded-lg border shrink-0 transition ${
+      hideBtn.textContent = state.hideCompleted ? "🙈 隱藏完成" : "👁️ 全部";
+      hideBtn.className = `text-[11px] font-bold px-2.5 py-1.5 rounded-xl border shrink-0 transition ${
         state.hideCompleted
           ? "bg-amber-100 text-amber-900 border-amber-300"
-          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+          : "bg-white text-slate-600 border-slate-200 active:bg-slate-100"
       }`;
 
       // 5. 渲染類別篩選器
@@ -1100,10 +1163,10 @@
         return `
           <button
             onclick="setCat('${k}')"
-            class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold border transition shrink-0 flex items-center gap-1 ${
+            class="px-3 py-1 rounded-xl text-xs font-bold border transition shrink-0 flex items-center gap-1 ${
               isActive
                 ? v.pillActive + " shadow-sm"
-                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                : "bg-white text-slate-600 border-slate-200 active:bg-slate-100"
             }"
           >
             <span>${v.icon}</span>
@@ -1112,7 +1175,7 @@
         `;
       }).join("");
 
-      // 6. 渲染每日時間軸卡片
+      // 6. 渲染每日時間軸卡片（針對手機垂直閱讀重新排版：時間與分類置頂、標題獨立不擠壓）
       const query = state.search.trim().toLowerCase();
       const filteredDays = routeData.days.filter(d => state.day === "ALL" || d.day === state.day);
 
@@ -1133,37 +1196,41 @@
 
         if (evs.length === 0) return "";
 
-        // 計算單日完成數
         const dayDone = d.events.filter(e => state.checked[e.id]).length;
 
         return `
           <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden animate-fade-in">
             <!-- Day Header -->
-            <div class="px-4 py-3.5 bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-3">
-                <div class="px-3 py-1.5 rounded-xl bg-teal-700 text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-sm">
+            <div class="px-3.5 py-3 sm:px-4 sm:py-3.5 bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div class="flex items-start sm:items-center gap-2.5">
+                <div class="px-2.5 py-1.5 rounded-xl bg-teal-700 text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-sm shrink-0">
                   ${d.day}
                 </div>
-                <div>
-                  <div class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
                     <span class="text-xs font-bold text-teal-700">${d.weekday}</span>
                     <span class="text-xs text-slate-300">|</span>
                     <span class="text-xs font-bold text-slate-600">📍 ${d.city}</span>
                     <span class="text-[11px] text-slate-400 font-mono">(${dayDone}/${d.events.length})</span>
+                    <span class="ml-auto sm:hidden text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                      d.hotelHighlight
+                        ? "bg-amber-100 text-amber-950 border-amber-300"
+                        : "bg-slate-100 text-slate-700 border-slate-200"
+                    }">🏨 ${d.hotel}</span>
                   </div>
-                  <h2 class="font-extrabold text-slate-900 text-sm sm:text-base mt-0.5">${d.title}</h2>
+                  <h2 class="font-extrabold text-slate-900 text-sm sm:text-base mt-0.5 leading-snug">${d.title}</h2>
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center justify-between sm:justify-end gap-2 flex-wrap">
                 ${d.hasD1Toggle ? `
-                  <div class="inline-flex rounded-xl bg-slate-100 p-0.5 border border-slate-200 text-[11px] font-bold">
-                    <button onclick="setD1FlightFilter('all')" class="px-2 py-0.5 rounded-lg transition ${state.d1FlightFilter === 'all' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">全部</button>
-                    <button onclick="setD1FlightFilter('early')" class="px-2 py-0.5 rounded-lg transition ${state.d1FlightFilter === 'early' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">長榮早班(13:30 C/I)</button>
-                    <button onclick="setD1FlightFilter('afternoon')" class="px-2 py-0.5 rounded-lg transition ${state.d1FlightFilter === 'afternoon' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">華航/星宇午班(18:00 C/I)</button>
+                  <div class="w-full sm:w-auto grid grid-cols-3 sm:inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-[11px] font-bold">
+                    <button onclick="setD1FlightFilter('all')" class="py-1 px-2 rounded-lg transition ${state.d1FlightFilter === 'all' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">全部</button>
+                    <button onclick="setD1FlightFilter('early')" class="py-1 px-2 rounded-lg transition ${state.d1FlightFilter === 'early' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">長榮早班</button>
+                    <button onclick="setD1FlightFilter('afternoon')" class="py-1 px-2 rounded-lg transition ${state.d1FlightFilter === 'afternoon' ? 'bg-white text-teal-800 shadow-sm' : 'text-slate-500'}">華航/星宇午班</button>
                   </div>
                 ` : ""}
-                <span class="text-xs font-bold px-3 py-1 rounded-full border ${
+                <span class="hidden sm:inline-block text-xs font-bold px-3 py-1 rounded-full border ${
                   d.hotelHighlight
                     ? "bg-amber-100 text-amber-950 border-amber-300 shadow-sm"
                     : "bg-slate-100 text-slate-700 border-slate-200"
@@ -1173,7 +1240,7 @@
               </div>
             </div>
 
-            <!-- Timeline Items -->
+            <!-- Timeline Items (手機直覺式卡片排版) -->
             <div class="divide-y divide-slate-100">
               ${evs.map(e => {
                 const catInfo = CATS[e.cat];
@@ -1183,42 +1250,45 @@
                 return `
                   <div
                     onclick="toggleCheck('${e.id}')"
-                    class="p-3.5 sm:px-5 flex items-start gap-3 sm:gap-4 hover:bg-slate-50/90 transition cursor-pointer select-none ${
+                    class="p-3.5 sm:px-5 flex items-start gap-3 active:bg-slate-50 hover:bg-slate-50/90 transition cursor-pointer select-none ${
                       isDone ? "opacity-55 bg-slate-50/60" : ""
                     }"
                   >
-                    <!-- 時間欄 -->
-                    <div class="w-24 sm:w-28 shrink-0 pt-0.5">
-                      <span class="inline-block font-mono text-xs sm:text-sm font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-2.5 py-0.5 rounded-lg">
-                        ${e.time}
-                      </span>
+                    <!-- 左側大勾選框 (放在左側或右側皆好按，這裡放左側讓大拇指好點且視覺對齊) -->
+                    <div class="pt-0.5 shrink-0">
+                      <div class="w-6 h-6 rounded-xl border-2 flex items-center justify-center text-xs font-bold transition ${
+                        isDone
+                          ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
+                          : "border-slate-300 bg-white text-transparent"
+                      }">
+                        ✓
+                      </div>
                     </div>
 
-                    <!-- 內容欄 -->
+                    <!-- 中間主內容欄 (時間+類別在上，活動名稱獨立一行，手機版絕不擠壓斷字) -->
                     <div class="flex-1 min-w-0">
-                      <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
-                        <div class="flex flex-wrap items-center gap-1.5">
-                          <span class="text-[11px] font-bold px-2 py-0.5 rounded-md border ${catInfo.badge}">
+                      <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <span class="font-mono text-xs font-extrabold text-teal-800 bg-teal-50 border border-teal-200/80 px-2 py-0.5 rounded-lg">
+                            ⏰ ${e.time}
+                          </span>
+                          <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg border ${catInfo.badge}">
                             ${catInfo.icon} ${catInfo.label}
                           </span>
-                          <h3 class="font-bold text-slate-900 text-sm sm:text-base ${isDone ? 'line-through text-slate-400' : ''}">
-                            ${e.name}
-                          </h3>
                         </div>
 
-                        <!-- 操作按鈕組：填店名 + Google Maps 導航 -->
+                        <!-- 手機大尺寸操作膠囊：填店名 + Google Maps 導航 -->
                         <div class="flex items-center gap-1.5 shrink-0">
                           <button
                             onclick="event.stopPropagation(); openCustomNoteModal('${e.id}', '${e.name.replace(/'/g, "\\'")}')"
-                            class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg border transition ${
+                            class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-xl border transition ${
                               customMemo
                                 ? "bg-amber-100 text-amber-900 border-amber-300"
-                                : "bg-slate-100 hover:bg-amber-50 text-slate-600 hover:text-amber-800 border-slate-200/80"
+                                : "bg-slate-100 active:bg-amber-50 text-slate-700 border-slate-200"
                             }"
-                            title="填入最終決定的餐廳或按摩店名"
                           >
                             <span>✏️</span>
-                            <span class="hidden sm:inline">${customMemo ? "修改店家" : "填店名"}</span>
+                            <span>${customMemo ? "改店名" : "填店名"}</span>
                           </button>
 
                           <a
@@ -1226,14 +1296,18 @@
                             target="_blank"
                             rel="noopener noreferrer"
                             onclick="event.stopPropagation()"
-                            class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-600 hover:text-teal-700 border border-slate-200/80 transition"
-                            title="在 Google Maps 開啟位置"
+                            class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-xl bg-teal-50 active:bg-teal-100 text-teal-800 border border-teal-200/80 transition"
                           >
                             <span>🗺️</span>
-                            <span class="hidden sm:inline">地圖</span>
+                            <span>導航</span>
                           </a>
                         </div>
                       </div>
+
+                      <!-- 行程主標題 -->
+                      <h3 class="font-extrabold text-slate-900 text-base leading-snug mt-1 ${isDone ? 'line-through text-slate-400' : ''}">
+                        ${e.name}
+                      </h3>
 
                       ${e.note ? `
                         <p class="text-xs sm:text-sm text-slate-500 whitespace-pre-line leading-relaxed mt-1">
@@ -1242,22 +1316,11 @@
                       ` : ""}
 
                       ${customMemo ? `
-                        <div class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-950 text-xs font-semibold">
-                          <span>📌 旅伴備註：</span>
+                        <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-bold">
+                          <span>📌 預約/店名：</span>
                           <span>${customMemo}</span>
                         </div>
                       ` : ""}
-                    </div>
-
-                    <!-- 勾選狀態框 -->
-                    <div class="pt-1 shrink-0">
-                      <div class="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition ${
-                        isDone
-                          ? "bg-emerald-500 border-emerald-500 text-white shadow-sm"
-                          : "border-slate-300 bg-white text-transparent hover:border-teal-500"
-                      }" title="點擊標記完成">
-                        ✓
-                      </div>
                     </div>
                   </div>
                 `;
@@ -1268,11 +1331,11 @@
       }).join("");
 
       document.getElementById("itineraryList").innerHTML = cardsHtml || `
-        <div class="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-2">
+        <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
           <div class="text-3xl">🔍</div>
           <div class="font-bold text-slate-700">找不到符合條件的行程項目</div>
           <p class="text-xs text-slate-400">請嘗試切換回「全部天數」或重設篩選條件</p>
-          <button onclick="resetFilters()" class="mt-2 px-4 py-1.5 rounded-xl bg-teal-600 text-white text-xs font-semibold">重設所有篩選</button>
+          <button onclick="resetFilters()" class="mt-2 px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold">重設所有篩選</button>
         </div>
       `;
 
@@ -1358,6 +1421,22 @@
       render();
     };
 
+    window.openDecisionFromNav = function() {
+      state.decisionOpen = true;
+      render();
+      const el = document.getElementById("decisionSection");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
+    window.scrollToItinerary = function() {
+      const el = document.getElementById("stickyFilterBar");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    window.toggleCurrencyModal = function() {
+      document.getElementById("currencyModal").classList.toggle("hidden");
+    };
+
     window.castVote = function(voteKey) {
       state.votes[voteKey] = (state.votes[voteKey] || 0) + 1;
       saveCloudState();
@@ -1416,37 +1495,8 @@
       saveCloudState();
       renderPrepChecklist();
     };
-
-    window.copyText = function(txt, toastMsg) {
-      const tempInput = document.createElement("textarea");
-      tempInput.value = txt;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand("copy");
-        showToast(toastMsg || "已複製！");
-      } catch (e) {}
-      document.body.removeChild(tempInput);
-    };
-
-    window.toggleCompareMode = function() {
-      state.compareOpen = !state.compareOpen;
-      const sec = document.getElementById("compareViewSection");
-      const txt = document.getElementById("compareModeText");
-      if (state.compareOpen) {
-        renderCompareView();
-        sec.classList.remove("hidden");
-        txt.textContent = "收合 PK 比較 ▲";
-      } else {
-        sec.classList.add("hidden");
-        txt.textContent = "河內雙版本 PK 比較";
-      }
-    };
-
-    // 格式化越南盾中文讀法（防看錯 0 的數量）
+    // 格式化越南盾中文讀法（防看錯 0 的數量，同步更新主畫面與手機彈出視窗）
     function updateVndReadableHint(vndVal) {
-      const hintEl = document.getElementById("vndReadableHint");
-      if (!hintEl) return;
       const num = Math.round(vndVal || 0);
       const formatted = num.toLocaleString('en-US');
       let zhText = "";
@@ -1456,40 +1506,69 @@
       } else if (num > 0) {
         zhText = `（不到 1 萬越盾）`;
       }
-      hintEl.innerHTML = `
-        <span>👁️ 金額確認：<b>${formatted} VND</b> ${zhText}</span>
-        <button onclick="appendZeros('000')" class="text-[10px] bg-white hover:bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded border border-amber-300 transition" title="快速補 3 個 0">+000</button>
-      `;
+
+      const mainHint = document.getElementById("vndReadableHint");
+      if (mainHint) {
+        mainHint.innerHTML = `
+          <span>👁️ <b>${formatted} VND</b> ${zhText}</span>
+          <button onclick="appendZeros('000', 'main')" class="text-xs bg-white active:bg-amber-200 text-amber-950 font-extrabold px-2.5 py-1 rounded-lg border border-amber-300 shadow-sm shrink-0">+000 補零</button>
+        `;
+      }
+      const modalHint = document.getElementById("modalVndReadableHint");
+      if (modalHint) {
+        modalHint.innerHTML = `
+          <span>👁️ <b>${formatted} VND</b> ${zhText}</span>
+          <button onclick="appendZeros('000', 'modal')" class="text-xs bg-white active:bg-amber-200 text-amber-950 font-extrabold px-3 py-1 rounded-lg border border-amber-300 shadow-sm shrink-0">+000 補零</button>
+        `;
+      }
     }
 
-    // 匯率換算器：完整越南盾金額直接算 (1 TWD ≈ 780 VND)
-    window.convertCurrency = function(source) {
+    // 匯率換算器：完整越南盾金額直接算 (1 TWD ≈ 780 VND)，雙向同步主頁面與底部彈出框
+    window.convertCurrency = function(source, origin = 'main') {
       const vndEl = document.getElementById("vndInput");
       const twdEl = document.getElementById("twdInput");
+      const modalVndEl = document.getElementById("modalVndInput");
+      const modalTwdEl = document.getElementById("modalTwdInput");
       const rate = 780; // 1 TWD ≈ 780 VND
+
       if (source === 'vnd') {
-        const vnd = parseFloat(vndEl.value) || 0;
-        twdEl.value = Math.round(vnd / rate);
+        const activeVndEl = origin === 'modal' ? modalVndEl : vndEl;
+        const vnd = parseFloat(activeVndEl.value) || 0;
+        const twd = Math.round(vnd / rate);
+        if (vndEl) vndEl.value = vnd || "";
+        if (modalVndEl) modalVndEl.value = vnd || "";
+        if (twdEl) twdEl.value = twd;
+        if (modalTwdEl) modalTwdEl.value = twd;
         updateVndReadableHint(vnd);
       } else {
-        const twd = parseFloat(twdEl.value) || 0;
+        const activeTwdEl = origin === 'modal' ? modalTwdEl : twdEl;
+        const twd = parseFloat(activeTwdEl.value) || 0;
         const vnd = Math.round(twd * rate);
-        vndEl.value = vnd;
+        if (twdEl) twdEl.value = twd || "";
+        if (modalTwdEl) modalTwdEl.value = twd || "";
+        if (vndEl) vndEl.value = vnd;
+        if (modalVndEl) modalVndEl.value = vnd;
         updateVndReadableHint(vnd);
       }
     };
 
     window.setQuickVnd = function(fullVal) {
-      document.getElementById("vndInput").value = fullVal;
-      convertCurrency('vnd');
+      const vndEl = document.getElementById("vndInput");
+      const modalVndEl = document.getElementById("modalVndInput");
+      if (vndEl) vndEl.value = fullVal;
+      if (modalVndEl) modalVndEl.value = fullVal;
+      convertCurrency('vnd', 'main');
     };
 
-    window.appendZeros = function(zeros) {
+    window.appendZeros = function(zeros, origin = 'main') {
       const vndEl = document.getElementById("vndInput");
-      const current = vndEl.value ? String(vndEl.value) : "0";
+      const modalVndEl = document.getElementById("modalVndInput");
+      const current = vndEl && vndEl.value ? String(vndEl.value) : "0";
       if (current !== "0") {
-        vndEl.value = current + zeros;
-        convertCurrency('vnd');
+        const nextVal = current + zeros;
+        if (vndEl) vndEl.value = nextVal;
+        if (modalVndEl) modalVndEl.value = nextVal;
+        convertCurrency('vnd', origin);
       }
     };
 
